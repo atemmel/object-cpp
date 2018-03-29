@@ -16,7 +16,7 @@ std::istream & operator>>(std::istream & in, Person & p)
 	in.ignore(); //Ignorera whitespace
 	std::getline(in, p.address.city, ' ');
 
-	//Ignorera samtliga tecken till en ny rad
+	//Ignorera samtliga tecken till nästa radbrytning
 	in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	
 	if(in.peek() == -1) in.ignore();
@@ -35,12 +35,8 @@ std::vector<Person> read_file(const std::string & filename)
 
 	Person p;
 
-	do	//Plocka in alla personer stegvis ur filen in i vectorn	
-	{
-		file >> p;
+	while(file >> p)	//Plocka in alla personer stegvis ur filen in i vectorn
 		persons.push_back(p);
-	}
-	while(!file.eof());
 
 	return persons;
 }
