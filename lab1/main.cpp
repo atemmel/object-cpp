@@ -5,7 +5,6 @@ void printmenu();
 
 int main(int argc, char ** argv)
 {
-	std::cout << "Whaaa\n";
 	auto list = read_file("names.txt");
 
 	uint8_t selection = 0;
@@ -20,6 +19,7 @@ int main(int argc, char ** argv)
 			std::getline(std::cin, input);
 		} 
 		while(input.empty() || !isdigit(input.front()));
+
 		selection = input.front() - '0';
 
 		if(selection == 1)

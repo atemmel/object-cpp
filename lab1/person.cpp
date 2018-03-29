@@ -8,14 +8,15 @@ std::istream & operator>>(std::istream & in, Person & p)
 	std::getline(in, p.id);
 	std::getline(in, p.address.street, ',');
 
-	in.ignore();
-	std::getline(in, zipA, ' ');
-	std::getline(in, zipB, ' ');
-	p.address.zip = stoi(zipA + zipB);
+	in.ignore();	//Ignorera whitespace
+	std::getline(in, zipA, ' ');	//Ta första delen av postnr
+	std::getline(in, zipB, ' ');	//Ta andra delen av postnr
+	p.address.zip = stoi(zipA + zipB);	//Slå ihop dem
 	
-	in.ignore();
+	in.ignore(); //Ignorera whitespace
 	std::getline(in, p.address.city, ' ');
 
+	//Ignorera samtliga tecken till en ny rad
 	in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	
 	if(in.peek() == -1) in.ignore();
@@ -28,9 +29,13 @@ std::vector<Person> read_file(const std::string & filename)
 {
 	std::ifstream file(filename.c_str());
 	std::vector<Person> persons;
+
+	if(!file.is_open())	//Om filen ej öppnats, avbryt meddetsamma
+		return persons;
+
 	Person p;
 
-	do	
+	do	//Plocka in alla personer stegvis ur filen in i vectorn	
 	{
 		file >> p;
 		persons.push_back(p);
@@ -46,6 +51,7 @@ size_t find_in_names(const std::vector<Person> & persons, std::string name_part)
 	std::transform(name_part.begin(), name_part.end(), name_part.begin(), 
 			::toupper);
 
+	//Räkna bara de personer som har söksträngen som en substräng inom sig
 	return	std::count_if(persons.begin(), persons.end(), [&](const Person & p)
 	{
 		std::string tmp = p.name;
