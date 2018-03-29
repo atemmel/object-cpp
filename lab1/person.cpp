@@ -74,6 +74,7 @@ std::vector<Person> find_person_from_city(const std::vector<Person> & haystack,
 	
 		std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::toupper);
 		
+		//Om nuvarande stad matchar vår sökterm, så ska denna person med
 		if(tmp == city) persons_found.push_back(p);
 	}
 
