@@ -11,25 +11,14 @@ public:
 
 	linked_list(const linked_list & src)
 	{
-		auto current 	= head;
 
-		linked_list<T>::node_t * next;
-
-		while(current)
-		{
-			next = current->next;
-			delete current;
-			current = next;
-		}
-
-		head = tail = 0;
+		while(!empty()) pop_front();
 
 		if(!src.empty())
 		{
 			auto current_src = src.head->next;
-
-			head = new linked_list<T>::node_t(src.head->value);
-			current = head;
+			auto current = head = new linked_list<T>::node_t(
+					src.head->value);
 
 			while(current_src)
 			{
@@ -55,20 +44,7 @@ public:
 	// Destructor
 	~linked_list()
 	{
-		size_t n 	= 0;
-		auto current 	= head;
-
-		linked_list<T>::node_t * next;
-
-		while(current)
-		{
-			next = current->next;
-			delete current;
-			current = next;
-			n++;
-		}
-
-		std::cout << n << " items deleted from destructor\n";
+		while(!empty()) pop_back();	
 	}
 
 	// Tilldelningsoperatorn
