@@ -1,6 +1,12 @@
 #include <iostream>
 #include "person.h"
 
+#ifdef WIN32
+	#define CLEAR "cls"
+#else
+	#define CLEAR "clear"
+#endif
+
 void printmenu();
 
 int main(int argc, char ** argv)
@@ -24,7 +30,7 @@ int main(int argc, char ** argv)
 
 		if(selection == 1)
 		{
-			system("clear");
+			system(CLEAR);
 			std::cout << "Skriv ett namn att söka efter: ";
 			std::string searchstr;
 			getline(std::cin, searchstr);
@@ -36,7 +42,7 @@ int main(int argc, char ** argv)
 		}
 		else if(selection == 2)
 		{
-			system("clear");
+			system(CLEAR);
 			std::cout << "Skrv en ort att söka efter: ";
 			std::string searchstr;
 			getline(std::cin, searchstr);
@@ -66,7 +72,7 @@ int main(int argc, char ** argv)
 
 void printmenu()
 {
-	system("clear");
+	system(CLEAR);
 	std::cout << 	"1 - Sök del av personnamn."
 			"\n2 - Sök städer."
 			"\n3 - Avsluta."
