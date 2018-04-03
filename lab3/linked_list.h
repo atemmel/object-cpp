@@ -22,14 +22,15 @@ public:
 
 			while(current_src)
 			{
-				auto next_elem = new linked_list<T>::node_t(
+
+				auto next = new linked_list<T>::node_t(
 						current_src->value);
 
 				//Koppla ihop det nya elementet med det tidigare
-				next_elem->prev = current;
+				next->prev = current;
 
 				//Koppla ihop det tidigare elementet med det nya
-				current->next = next_elem;
+				current->next = next;
 
 				//Iterera
 				current 	= current->next;
@@ -50,11 +51,57 @@ public:
 	// Tilldelningsoperatorn
 	linked_list & operator=(const linked_list & rhs)
 	{
+		while(!empty()) pop_back();
 
+		if(!rhs.empty())
+		{
+			auto current_src = rhs.head->next;
+			auto current = head = new linked_list<T>::node_t(
+					rhs.head->value);
+
+			while(current_src)
+			{
+
+				auto next = new linked_list<T>::node_t(
+						current_src->value);
+
+				//Koppla ihop det nya elementet med det tidigare
+				next->prev = current;
+
+				//Koppla ihop det tidigare elementet med det nya
+				current->next = next;
+
+				//Iterera
+				current 	= current->next;
+				current_src 	= current_src->next;	
+			}
+			
+			tail = current;
+
+		}
+
+		return *this;
 	}
 
 	// Sammanfoga två listor
-	linked_list & operator+=(const linked_list & rhs);
+	linked_list & operator+=(const linked_list & rhs)
+	{
+		if(!rhs.empty())
+		{
+			auto current = rhs.head;
+			auto end     = rhs.tail;
+
+			while(current != end)
+			{
+				push_back(current->value); 
+				current = current->next;
+			}
+
+			push_back(end->value);
+		}
+
+		return *this;
+	}
 
 	// Lägg till element i början eller slutet av listan
 	void push_front(const T & value)
@@ -127,11 +174,6 @@ public:
 	T & back()
 	{
 		return tail->value;
-	}
-
-	T & at(const size_t & index)
-	{
-		return (*this)[index];
 	}
 
 	T & operator[](const size_t & index)
