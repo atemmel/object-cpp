@@ -1,7 +1,13 @@
 #include "person.h"
+#include <iostream>
 
 std::istream & operator>>(std::istream & in, Person & p)
 {
+	if(in.peek() == -1) //Om filen
+	{
+		return in;
+	}
+
 	std::string zipA, zipB;
 	
 	std::getline(in, p.name);
@@ -18,9 +24,6 @@ std::istream & operator>>(std::istream & in, Person & p)
 
 	//Ignorera samtliga tecken till nästa radbrytning
 	in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-	
-	if(in.peek() == -1) in.ignore();
-
 
 	return in;
 }
