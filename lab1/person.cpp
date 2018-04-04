@@ -3,9 +3,9 @@
 
 std::istream & operator>>(std::istream & in, Person & p)
 {
-	if(in.peek() == -1) //Om filen
+	if(in.peek() == -1) //Om filen är vid sitt slut
 	{
-		return in;
+		return in;  //Avbryt
 	}
 
 	std::string zipA, zipB;
