@@ -1,11 +1,7 @@
 #include <iostream>
 #include "person.h"
-
-#ifdef WIN32
-	#define CLEAR "cls"
-#else
-	#define CLEAR "clear"
-#endif
+#include <typeinfo>
+#include <sstream>
 
 void printmenu();
 
@@ -30,7 +26,7 @@ int main(int argc, char ** argv)
 
 		if(selection == 1)
 		{
-			system(CLEAR);
+			system("clear");
 			std::cout << "Skriv ett namn att söka efter: ";
 			std::string searchstr;
 			getline(std::cin, searchstr);
@@ -42,8 +38,8 @@ int main(int argc, char ** argv)
 		}
 		else if(selection == 2)
 		{
-			system(CLEAR);
-			std::cout << "Skrv en ort att söka efter: ";
+			system("clear");
+			std::cout << "Skriv en ort att söka efter: ";
 			std::string searchstr;
 			getline(std::cin, searchstr);
 
@@ -51,10 +47,11 @@ int main(int argc, char ** argv)
 
 			if(!sublist.empty())
 			{
-				auto person = sublist.front();
-
-				std::cout << "Hittade " << person.name << " som bor i " << 
-					person.address.city << '\n';
+				for(const auto & person : sublist)
+				{
+					std::cout << "Hittade " << person.name << " som bor i " 
+						<< person.address.city << '\n';
+				}
 			}
 			else 
 			{
@@ -72,7 +69,7 @@ int main(int argc, char ** argv)
 
 void printmenu()
 {
-	system(CLEAR);
+	system("clear");
 	std::cout << 	"1 - Sök del av personnamn."
 			"\n2 - Sök städer."
 			"\n3 - Avsluta."
