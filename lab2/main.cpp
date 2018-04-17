@@ -12,7 +12,7 @@ const uint64_t ki = 1024;
 
 struct Kibibyte
 {
-	int8_t i[ki];
+	int8_t i[ki] = {0};
 };
 
 struct Mebibyte
