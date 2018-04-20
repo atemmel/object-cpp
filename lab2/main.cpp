@@ -49,9 +49,9 @@ int main()
 				n_kib << " KiB allocated\n" <<
 				n_mib << " MiB allocated\n" <<
 				n_gib << " GiB allocated\n\n" <<
-				"1. Allocate one KiB\n"
-				"2. Allocate one MiB\n"
-				"3. Allocate one GiB\n"
+				"1. Allocate KiB until crash\n"
+				"2. Allocate MiB until crash\n"
+				"3. Allocate GiB until crash\n"
 				"4. Exit and free memory\n";
 
 			std::getline(std::cin, input);
@@ -59,15 +59,28 @@ int main()
 			else choice = -1;
 
 			if (choice == 1)
-				kibiboys.emplace_back(new Kibibyte);
+				while(1)
+					kibiboys.emplace_back(new Kibibyte);
 			else if (choice == 2)
-				mebiboys.emplace_back(new Mebibyte);
+				while(1)
+					mebiboys.emplace_back(new Mebibyte);
 			else if (choice == 3)
-				gibiboys.emplace_back(new Gibibyte);
+				while(1)
+					gibiboys.emplace_back(new Gibibyte);
 		}
 	}
 	catch (std::bad_alloc e)
 	{
+		uint64_t n_bytes = sizeof(Kibibyte) * kibiboys.size() + sizeof(Mebibyte) * mebiboys.size() +
+		sizeof(Gibibyte) * gibiboys.size();
+
+		double n_kib = n_bytes / ki, n_mib = n_kib / ki, n_gib = n_mib / ki;
+
+		std::cerr <<  n_bytes << " bytes allocated\n" <<
+			n_kib << " KiB allocated\n" <<
+			n_mib << " MiB allocated\n" <<
+			n_gib << " GiB allocated\n\n";
+
 		std::cerr << "Caught error: " << e.what() << '\n' << 
 			"Pressing any key will free memory\n";
 		std::cin.get();
