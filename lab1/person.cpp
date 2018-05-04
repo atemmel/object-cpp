@@ -47,12 +47,12 @@ std::string toUpper(std::string str)
 {
 	std::transform(str.begin(), str.end(), str.begin(), ::toupper);
 
-	while(str.find("Å") != std::string::npos)
-		str.replace(str.find("Å"), 2, "å");
-	while(str.find("Ä") != std::string::npos)
-		str.replace(str.find("Ä"), 2, "ä");
-	while(str.find("Ö") != std::string::npos)
-		str.replace(str.find("Ö"), 2, "ö");
+	while(str.find("å") != std::string::npos)
+		str.replace(str.find("å"), 2, "Å");
+	while(str.find("ä") != std::string::npos)
+		str.replace(str.find("ä"), 2, "Ä");
+	while(str.find("ö") != std::string::npos)
+		str.replace(str.find("ö"), 2, "Ö");
 
 	return str;
 }

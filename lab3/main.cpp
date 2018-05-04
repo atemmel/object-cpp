@@ -3,7 +3,7 @@
 #include <list>
 
 template <class T>
-void print_list(const linked_list<T> & list)
+void print_list(linked_list<T> list)
 {
 	list.print();	//???
 }
@@ -44,8 +44,10 @@ linked_list<T> merge(linked_list<T> A, linked_list<T> B)
 	list.push_back(a);
 	list.push_back(b);
 
-	while(!A.empty()) list.push_back(A.pop_front());
-	while(!B.empty()) list.push_back(B.pop_front());
+	//while(!A.empty()) list.push_back(A.pop_front());
+	//while(!B.empty()) list.push_back(B.pop_front());
+	if(!A.empty()) list += A;
+	else if(!B.empty()) list += B;
 
 	return list;
 }
@@ -80,6 +82,9 @@ int main()
 
 	llA[49] > llB[49] ? llA.remove(49) : llB.remove(49);
 
+	std::cout << "List A has " << llA.size() << " elements.\n";
+	std::cout << "List B has " << llB.size() << " elements.\n";
+
 	auto llC = llA;
 
 	for(int i = 0; i < 50; i++)
@@ -96,6 +101,7 @@ int main()
 
 	auto llD = merge<int>(llA, llB);
 
+	std::cout << "Denna lista är A och B mergade\n";
 	llD.print();
 
 	std::cout << llD.size() << " = " << llA.size() << 

@@ -1,7 +1,5 @@
 #include <iostream>
 #include "person.h"
-#include <typeinfo>
-#include <sstream>
 
 void printmenu();
 

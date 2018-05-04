@@ -12,7 +12,7 @@ public:
 	linked_list(const linked_list & src)
 	{
 
-		while(!empty()) pop_front();
+		//while(!empty()) pop_front();
 
 		if(!src.empty())
 		{
@@ -51,6 +51,10 @@ public:
 	// Tilldelningsoperatorn
 	linked_list & operator=(const linked_list & rhs)
 	{
+		// Check för självtilldelning
+		if(*this == rhs) return *this;
+
+		// Töm listan
 		while(!empty()) pop_back();
 
 		if(!rhs.empty())
@@ -282,5 +286,3 @@ private:
 	node_t * head = 0;
 	node_t * tail = 0;
 };
-
-using linked_list_double = linked_list<double>;

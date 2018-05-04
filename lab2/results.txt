@@ -1,0 +1,15 @@
+Lab 2 Adam Temmel (adte1700)
+
+Alla huvudsakliga siffror har hämtats ifrån Task Manager. Om intressant
+återfinns även ytterliggare information om vad programmet anser att den
+har allokerat för mängd utrymme. Denna information bör tas med en nypa 
+salt.
+
+KiBwise alloc Release 32 bit: Large Address Aware disabled = 2 069 580 K
+KiBwise alloc Release 32 bit: Large Address Aware enabled  = 4 166 368 K
+GiBwise alloc Release 32 bit: Large Address Aware disabled = 1 052 152 K
+GiBwise alloc Release 32 bit: Large Address Aware enabled  = 2 102 656 K
+KiBwise alloc Release 64 bit: Large Address Aware disabled = 2 072 840 K
+KiBwise alloc Debug   64 bit: Large Address Aware enabled  = 6 937 884 K //Programmet sa 26.4799 GiB allocated
+GiBwise alloc Release 64 bit: Large Address Aware disabled = 1 051 320 K
+GiBwise alloc Debug   64 bit: Large Address Aware enabled  = 6 749 164 K //Programmet sa 28      GiB allocated 
