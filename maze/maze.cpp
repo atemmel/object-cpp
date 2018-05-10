@@ -51,39 +51,75 @@ void Maze::generate()
 	std::vector<Tile> list;
 	list.push_back(Tile(1,1));
 
+	auto accepted = [&](const Tile & tile) 
+	{
+		auto close = getNeighbours(tile);
+		
+		int n_found = 0;
+		for(auto & l : close)
+		{
+			if(table(l))
+			{
+				if(n_found > 1) return false;
+				else ++n_found;
+			}
+		}
+
+		return true;
+	};
+
 	while(!list.empty())
 	{
 		std::shuffle(list.begin(), list.end(), m_gen);
+
+		(*this)(list.back()) = char_path;
 
 		for(auto l : list)
 		{
 			history.push(l);	
 			table(l) = true;
-			(*this)(l) = char_path;
 		}
 
 		list = getNeighbours(history.top());
 
 		for(int i = 0; i < list.size(); i++)
 		{
-			auto elem = list[i];
-			if(isBorder(elem) || table(elem))
+			auto elem	= list[i];
+			auto st 	= !accepted(elem);
+
+			if(isBorder(elem) || table(elem) || st)
 			{
 				list.erase(list.begin() + i);
 				--i;
 			}
 		}
+		
+		system("clear");
+		std::cout << *this;
+		std::this_thread::sleep_for(
+			std::chrono::milliseconds(500));
 	}
+}
+
+std::ostream & operator<<(std::ostream & os, Maze & maze)
+{
+	for(int i = 0; i < maze.m_height; i++)
+	{
+		for(int j = 0; j < maze.m_width; j++)
+			os << maze(j, i);
+		os << '\n';
+	}
+	return os;
 }
 
 std::vector<Tile> Maze::getNeighbours(Tile index)
 {
 	std::vector<Tile> list;
 	
-	list.push_back(Tile(index.x - 1, index.y));
-	list.push_back(Tile(index.x + 1, index.y));
-	list.push_back(Tile(index.x, index.y - 1));
-	list.push_back(Tile(index.x, index.y + 1));
+	if(index.x > 0)			list.push_back(Tile(index.x - 1, index.y));
+	if(index.x < m_width - 1)	list.push_back(Tile(index.x + 1, index.y));
+	if(index.y > 0)			list.push_back(Tile(index.x, index.y - 1));
+	if(index.y < m_height - 1)	list.push_back(Tile(index.x, index.y + 1));
 
 	return list;
 }
@@ -116,7 +152,6 @@ Tile Maze::randomNotBorder()
 {
 	Tile pos;
 
-	
 	std::uniform_int_distribution<int> wDist(1, m_width  - 2),
 					hDist(1, m_height - 2);
 	pos.x = wDist(m_gen);

@@ -5,6 +5,8 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 struct Tile
 {
@@ -16,12 +18,6 @@ struct Tile
 
 	int32_t x, y;
 };
-
-/*std::ostream & operator<<(std::ostream & os, const Tile & rhs)
-{
-	os << rhs.x << ',' << rhs.y;
-	return os;
-}*/
 
 class Booltable 
 {
@@ -67,6 +63,8 @@ public:
 
 	void generate();
 
+	friend std::ostream & operator<<(std::ostream & os, Maze & maze);
+
 private:
 
 	std::vector<Tile> getNeighbours(Tile index);
@@ -90,3 +88,4 @@ private:
 
 	char * m_data = nullptr;
 };
+
