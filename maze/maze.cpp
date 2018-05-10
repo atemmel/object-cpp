@@ -41,8 +41,9 @@ void Maze::generate()
 
 	while(end == start) end = randomBorder();
 
-	(*this)(start) = char_start;
-	(*this)(end)   = char_end;
+	(*this)(start)	= char_start;
+	(*this)(end)	= char_end;
+	(*this)(1,1)	= '+';
 
 	std::stack<Tile> history;
 
@@ -70,10 +71,6 @@ void Maze::generate()
 
 	while(!list.empty())
 	{
-		std::shuffle(list.begin(), list.end(), m_gen);
-
-		(*this)(list.back()) = char_path;
-
 		for(auto l : list)
 		{
 			history.push(l);	
@@ -94,6 +91,10 @@ void Maze::generate()
 			}
 		}
 		
+		std::shuffle(list.begin(), list.end(), m_gen);
+
+		(*this)(list.back()) = char_path;
+
 		system("clear");
 		std::cout << *this;
 		std::this_thread::sleep_for(
