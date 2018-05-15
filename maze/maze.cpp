@@ -43,39 +43,64 @@ void Maze::generate()
 		return true;
 	};
 
-	while(!list.empty())
+	do
 	{
-		for(auto l : list)
+		while(!list.empty())
 		{
-			history.push(l);	
-			table(l) = true;
-		}
+			table(list.back()) = true;
+			history.push(list.back());
+			list = getNeighbours(history.top());
 
-		list = getNeighbours(history.top());
-
-		for(int i = 0; i < list.size(); i++)
-		{
-			auto elem	= list[i];
-			auto st 	= !accepted(elem);
-
-			if(isBorder(elem) || table(elem) || st)
+			for(size_t i = 0; i < list.size(); i++)
 			{
-				list.erase(list.begin() + i);
-				--i;
+				auto elem	= list[i];
+				auto st 	= !accepted(elem);
+
+				if(isBorder(elem) || table(elem) || st)
+				{
+					list.erase(list.begin() + i);
+					--i;
+				}
 			}
+			
+			std::shuffle(list.begin(), list.end(), m_gen);
+
+			history.push(list.back());
+			(*this)(list.back()) = char_path;
+
+			system("clear");
+			std::cout << *this;
+			std::this_thread::sleep_for(
+				std::chrono::milliseconds(200));
 		}
+
 		
+		history.pop();
+		while(list.empty() && !history.empty())
+		{
+			assert(!history.empty());
+
+			list = getNeighbours(history.top());
+			
+			for(size_t i = 0; i < list.size(); i++)
+			{
+				auto elem	= list[i];
+				auto st 	= !accepted(elem);
+
+				if(isBorder(elem) || table(elem) || st)
+				{
+					list.erase(list.begin() + i);
+					--i;
+				}
+			}
+			history.pop();
+		}
+
 		std::shuffle(list.begin(), list.end(), m_gen);
-
-		(*this)(list.back()) = char_path;
-
-		/*system("clear");
-		std::cout << *this;
-		std::this_thread::sleep_for(
-			std::chrono::milliseconds(500));*/
 	}
-
-	std::cout << *this;
+	while(!history.empty());
+	
+	//std::cout << *this;
 }
 
 std::ostream & operator<<(std::ostream & os, Maze & maze)
