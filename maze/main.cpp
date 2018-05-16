@@ -4,7 +4,7 @@ int main()
 {
 	auto seed = std::random_device()();
 
-	Maze maze(21, 21, seed);
+	Maze maze(51, 51, seed);
 
 	maze.generate();
 

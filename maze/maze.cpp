@@ -35,7 +35,7 @@ void Maze::generate()
 		{
 			if(table(l))
 			{
-				if(n_found > 1) return false;
+				if(n_found > 0) return false;
 				else ++n_found;
 			}
 		}
