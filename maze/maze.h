@@ -27,7 +27,7 @@ private:
 
 	Vec2i randomNotBorder();
 
-	const static char char_wall = '*',
+	const static char char_wall = '#',
 			char_path  = ' ',
 			char_start = 'S',
 			char_end   = 'X';

@@ -67,11 +67,11 @@ void Maze::generate()
 
 			history.push(list.back());
 			(*this)(list.back()) = char_path;
-
+			/*
 			system("clear");
 			std::cout << *this;
 			std::this_thread::sleep_for(
-				std::chrono::milliseconds(200));
+				std::chrono::milliseconds(200));*/
 		}
 
 		
@@ -100,7 +100,7 @@ void Maze::generate()
 	}
 	while(!history.empty());
 	
-	//std::cout << *this;
+	std::cout << *this;
 }
 
 std::ostream & operator<<(std::ostream & os, Maze & maze)
