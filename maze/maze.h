@@ -15,6 +15,8 @@ public:
 	
 	void generate();
 
+	bool find();
+
 	friend std::ostream & operator<<(std::ostream & os, Maze & maze);
 
 private:
