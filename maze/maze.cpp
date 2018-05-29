@@ -3,23 +3,19 @@
 Maze::Maze(int32_t width, int32_t height, uint32_t seed)
 	: Table<char>(width, height, char_wall)
 {
-	assert(width > 2 && height > 2 && "Assert: Bad dimension");
-	
 	m_gen.seed(m_seed);
 }
 
 void Maze::generate()
 {
-	Vec2i start(1,1);
+	Vec2i start(0,1);
 
 	for(int32_t i = 0; i < m_width; i++)
 		for(int32_t j = 0; j < m_height; j++)
 			(*this)(i,j) = char_wall;
 
 
-	//(*this)(start)	= char_start;
-	//(*this)(end)	= char_end;
-	(*this)(1,1)	= char_start;
+	(*this)(start)	= char_start;
 
 	std::stack<Vec2i> history;
 
@@ -51,6 +47,9 @@ void Maze::generate()
 	{
 		while(!neighbours.empty())
 		{
+			if(neighbours.back() == Vec2i(0,7))
+				std::cin.get();
+			(*this)(neighbours.back()) = char_path;
 			table(neighbours.back()) = true;
 			history.push(neighbours.back());
 			neighbours = getNeighbours(history.top());
@@ -70,10 +69,8 @@ void Maze::generate()
 			std::shuffle(neighbours.begin(), neighbours.end(), m_gen);
 
 			history.push(neighbours.back());
-			(*this)(neighbours.back()) = char_path;
 			
-			/*
-			system("clear");
+		/*	system("clear");
 			std::cout << *this;
 			std::this_thread::sleep_for(
 				std::chrono::milliseconds(200));*/
@@ -100,7 +97,6 @@ void Maze::generate()
 		}
 
 		std::shuffle(neighbours.begin(), neighbours.end(), m_gen);
-		(*this)(neighbours.back()) = char_path;
 	}
 	while(!history.empty() && !history.empty());
 
@@ -124,8 +120,6 @@ void Maze::generate()
 	while(neighbours.empty() || end == start);
 
 	(*this)(end) = char_end;
-	
-	//std::cout << *this;
 }
 
 bool Maze::find()
@@ -152,7 +146,6 @@ bool Maze::find()
 		while(!neighbours.empty())
 		{
 			history.push(neighbours.back());
-			(*this)(neighbours.back()) = 'S';
 			visited(neighbours.back()) = true;
 			neighbours = getNeighbours(history.top());
 
@@ -167,9 +160,12 @@ bool Maze::find()
 				else if((*this)(neighbours[i]) == char_end)
 				{
 					foundExit = 1;
-					return true;
+					//neighbours.clear();
+					//return true;
 				}
 			}
+
+			if(foundExit) break;
 
 			std::shuffle(neighbours.begin(), neighbours.end(), m_gen);
 
@@ -182,7 +178,8 @@ bool Maze::find()
 				std::chrono::milliseconds(200));*/
 		}
 
-		//history.pop();
+		if(foundExit) break;
+
 		do
 		{
 			neighbours = getNeighbours(history.top());
@@ -207,7 +204,11 @@ bool Maze::find()
 	}
 	while(!foundExit && !history.empty() || !neighbours.empty());
 
-	std::cout << end.x << ',' << end.y << '\n';
+	while(!history.empty())
+	{
+		(*this)(history.top()) = 'x';
+		history.pop();
+	}
 
 	return !history.empty();
 }
@@ -217,7 +218,10 @@ std::ostream & operator<<(std::ostream & os, Maze & maze)
 	for(int32_t i = 0; i < maze.m_height; i++)
 	{
 		for(int32_t j = 0; j < maze.m_width; j++)
+		{
 			os << maze(j, i);
+			//os << maze(j, i) << ' ';
+		}
 		os << '\n';
 	}
 	return os;
@@ -254,7 +258,7 @@ Vec2i Maze::randomBorder()
 	pos.x = wDist(m_gen);
 	pos.y = hDist(m_gen);
 
-	boolean(m_gen) == 1 ? pos.x = 0 : pos.y = 0;
+	boolean(m_gen) == 1 ? pos.x = m_width - 1 : pos.y = m_height - 1;
 
 	return pos;
 }
