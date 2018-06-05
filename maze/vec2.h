@@ -1,5 +1,6 @@
 #pragma once
 
+//Template till en 2dimensionell matematisk vektor
 template <class T>
 struct Vec2
 {

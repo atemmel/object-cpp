@@ -9,21 +9,25 @@ int main(int argc, char * argv[])
 {
 	char        arg = 0;
 	std::string param  = "",
-		inputFile  = "",
-		outputFile = "";
+		inputFile  = "",	//Infil
+		outputFile = "";	//Utfil
 
-	bool 	check = false;
+	bool 	check = false;		//Om bara lösningen skall
+					//kontrolleras
 
-	int32_t width  = -1,
-		height = -1;
+	int32_t width  = -1,		//Bredd
+		height = -1;		//Höjd
 
+	//Funktionslambda för felmeddelanden
 	auto error = [](const std::string & str)
 	{
 		std::cerr << "Error: " << str << '\n';
 	};
 
+	//Alternativ
 	const char * short_opts = "vhs:c:r:i:o:b";
 
+	//Långa alternativ
 	const struct option long_opts[] =
 	{
 		{"version", 0, NULL, 'v'},
@@ -40,13 +44,13 @@ int main(int argc, char * argv[])
 	{
 		switch(arg)
 		{
-			case 'v':
+			case 'v':	//Version
 				version();
 				return 0;
-			case 'h':
+			case 'h':	//Help
 				help();
 				return 0;
-			case 's':
+			case 's':	//Size
 				param = optarg;
 				if(isInt(param))
 				{
@@ -58,7 +62,7 @@ int main(int argc, char * argv[])
 					return EXIT_FAILURE;
 				}
 				break;
-			case 'c':
+			case 'c':	//Columns
 				param = optarg;
 				if(isInt(param))
 				{
@@ -70,7 +74,7 @@ int main(int argc, char * argv[])
 					return EXIT_FAILURE;
 				}
 				break;
-			case 'r':
+			case 'r':	//Rows
 				param = optarg;
 				if(isInt(param))
 				{
@@ -82,22 +86,28 @@ int main(int argc, char * argv[])
 					return EXIT_FAILURE;
 				}
 				break;
-			case 'i':
+			case 'i':	//Input
 				inputFile = optarg;
+
+				//Width och height sätts så att flödet kan passera en senare kontroll
+				//Om input specificerats så kommer inte programmet bygga en labyrint 
+				//under samma körning
+
 				width = height = 5;
 				break;
-			case 'o':
+			case 'o':	//Output
 				outputFile = optarg;
 				break;
-			case 'b':
+			case 'b':	//Check
 				check = true;
 				break;
 			case '?':
 			default:
-				return 0;
+				return EXIT_FAILURE;
 		}
 	}
-
+	
+	//Felhantering
 	if(width < 5 || height < 5)
 	{
 		error("Ogiltiga eller opsecifierade dimensioner.\nLabyrinten får ej vara "
@@ -112,19 +122,21 @@ int main(int argc, char * argv[])
 	}
 		
 	std::random_device rng;
-	auto seed = rng();
+	auto seed = rng();	//Hämta ett seed
 
 	Maze maze(width, height, seed);
 
-	if(!inputFile.empty())
+	if(!inputFile.empty())	//Om en fil skall läsas
 	{
-		if(!outputFile.empty())
+		if(!outputFile.empty())	//Om en fil skall skrivas
 		{
 			error("In och utfil definierad, "
 					"otydligt vad användaren önskar");
 			return EXIT_FAILURE;
 		}
-		if(maze.open(inputFile))
+
+
+		if(maze.open(inputFile))	//Om filen gick att öppna
 		{
 			bool found = maze.find();
 			if(check)

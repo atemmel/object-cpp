@@ -3,7 +3,7 @@
 Maze::Maze(int32_t width, int32_t height, uint32_t seed)
 	: Table<char>(width, height, char_wall)
 {
-	m_gen.seed(seed);
+	m_gen.seed(seed);	//Seeda generatorn
 }
 
 bool Maze::open(const std::string & str)
@@ -15,10 +15,12 @@ bool Maze::open(const std::string & str)
 	std::vector<std::string> matrix;
 	std::string row = "";
 
+	//Hämta längden på första raden
 	int32_t prevWidth = 0;
 	std::getline(file, row);
 	prevWidth = row.size();
 	matrix.push_back(row);
+
 	while(std::getline(file, row))
 	{
 		matrix.push_back(row);
@@ -27,11 +29,10 @@ bool Maze::open(const std::string & str)
 		prevWidth = row.size();
 	}
 
-	if(matrix.empty()) return false;
-
 	int32_t newWidth = matrix.front().size();
 	int32_t newHeight = matrix.size();
 
+	//Om de inlästa dimensioner ser fel ut, så gick inläsningen fel
 	if(newWidth % 2 == 0 || newHeight % 2 == 0 || 
 			newWidth < 5 || newHeight < 5)
 		return false;
@@ -52,6 +53,7 @@ void Maze::generate()
 {
 	Vec2i start(0,1);
 
+	//Sätt allt till väggar
 	for(int32_t i = 0; i < m_width; i++)
 		for(int32_t j = 0; j < m_height; j++)
 			(*this)(i,j) = char_wall;
@@ -61,13 +63,16 @@ void Maze::generate()
 
 	std::stack<Vec2i> history;
 
+	//Skapa en tabell med alla besökta
 	Table<bool> table(m_width, m_height, false);
 
 	std::vector<Vec2i> neighbours;
 	neighbours.push_back(Vec2i(1,1));
 
+	//Om slutet satts
 	bool endSet = false;
 
+	//Funktionslambda för att avgöra om en granne är besökbar eller ej
 	auto accepted = [&](const Vec2i & tile) 
 	{
 		auto close = getNeighbours(tile);
@@ -77,6 +82,7 @@ void Maze::generate()
 		{
 			if(table(l))
 			{
+				//Om antalet besökta grannar är > 0
 				if(n_found > 0) return false;
 				else ++n_found;
 			}
@@ -87,49 +93,46 @@ void Maze::generate()
 
 	do
 	{
-		while(!neighbours.empty())
+		while(!neighbours.empty())	//Så länge vi har grannar
 		{
-			if(neighbours.back() == Vec2i(0,7))
-				std::cin.get();
-			(*this)(neighbours.back()) = char_path;
-			table(neighbours.back()) = true;
-			history.push(neighbours.back());
+			(*this)(neighbours.back()) = char_path;	//Skriv väg
+			table(neighbours.back()) = true;	//Sätt besökt
+			history.push(neighbours.back());	//Stoppa in grannen i stacken
+
 			neighbours = getNeighbours(history.top());
 
 			for(size_t i = 0; i < neighbours.size(); i++)
 			{
 				auto elem	= neighbours[i];
-				auto st 	= !accepted(elem);
+				auto accept 	= !accepted(elem);
 
-				if(isBorder(elem) || table(elem) || st)
+				//Om grannen ej bör besökas
+				if(isBorder(elem) || table(elem) || accept)
 				{
+					//Tag bort den
 					neighbours.erase(neighbours.begin() + i);
 					--i;
 				}
 			}
 			
+			//Blanda vectorn
 			std::shuffle(neighbours.begin(), neighbours.end(), m_gen);
-
-			history.push(neighbours.back());
-			
-		/*	system("clear");
-			std::cout << *this;
-			std::this_thread::sleep_for(
-				std::chrono::milliseconds(200));*/
 		}
 
 		history.pop();
 
+		//Om vi gått in i en återvändsgränd
 		while(neighbours.empty() && !history.empty())
 		{
 			neighbours = getNeighbours(history.top());
 			
+			//Ta bort oönskade grannar
 			for(size_t i = 0; i < neighbours.size(); i++)
 			{
 				auto elem	= neighbours[i];
-				auto st 	= !accepted(elem);
+				auto accept 	= !accepted(elem);
 
-				if(isBorder(elem) || table(elem) || st)
+				if(isBorder(elem) || table(elem) || accept)
 				{
 					neighbours.erase(neighbours.begin() + i);
 					--i;
@@ -137,13 +140,15 @@ void Maze::generate()
 			}
 			history.pop();
 		}
-
+		
+		//Blanda grannar
 		std::shuffle(neighbours.begin(), neighbours.end(), m_gen);
 	}
-	while(!history.empty() && !history.empty());
+	while(!history.empty());
 
 	Vec2i end;
-
+	
+	//Skapa ett slut
 	do
 	{
 		end = randomBorder();
@@ -161,6 +166,7 @@ void Maze::generate()
 	}
 	while(neighbours.empty() || end == start);
 
+	//Markera början och slut
 	(*this)(end) = char_end;
 	(*this)(1,1) = char_solve;
 }
@@ -169,9 +175,11 @@ bool Maze::find()
 {
 	Vec2i start;
 
+	//Om labyrinten är för liten så går den inte att lösa
 	if(m_width < 5 || m_height < 5)
 		return false;
 
+	//Försök att hitta början
 	bool foundStart = 0;
 	for(int32_t i = 0; i < m_width; i++)
 		for(int32_t j = 0; j < m_height; j++)
@@ -181,6 +189,7 @@ bool Maze::find()
 				foundStart = 1;
 			}
 
+	//Om början inte finns så går det inte att hitta slutet
 	if(!foundStart) return false;
 
 	std::stack<Vec2i> history;
@@ -189,21 +198,20 @@ bool Maze::find()
 
 	neighbours.push_back(start);
 
-	bool foundExit = 0;
-
-	Vec2i end;
+	bool foundExit = 0;	//Om slutet hittats
 
 	do
 	{
-		while(!neighbours.empty())
+		while(!neighbours.empty()) //Medans vi har grannar
 		{
-			history.push(neighbours.back());
-			visited(neighbours.back()) = true;
-			neighbours = getNeighbours(history.top());
+			history.push(neighbours.back());	//Stoppa in en i stacken
+			visited(neighbours.back()) = true;	//Markera han som besökt
+
+			neighbours = getNeighbours(history.top());	//Hämta nya grannar
 
 			for(size_t i = 0; i < neighbours.size(); i++)
 			{
-				//Delete unwanted
+				//Ta bort oönskade grannar
 				if((*this)(neighbours[i]) == char_wall || visited(neighbours[i]))
 				{
 					neighbours.erase(neighbours.begin() + i);
@@ -212,43 +220,35 @@ bool Maze::find()
 				else if((*this)(neighbours[i]) == char_end)
 				{
 					foundExit = 1;
-					//neighbours.clear();
-					//return true;
 				}
 			}
 
 			if(foundExit) break;
 
 			std::shuffle(neighbours.begin(), neighbours.end(), m_gen);
-
-
-		/*	system("clear");
-			std::cout << *this;
-			auto s = history.top();
-			std::cout << s.x << ',' << s.y << '\n';
-			std::this_thread::sleep_for(
-				std::chrono::milliseconds(200));*/
 		}
 
 		if(foundExit) break;
 
+		//Om vi gått in i en återvändsgränd
 		do
 		{
-			neighbours = getNeighbours(history.top());
 			history.pop();
+
+			//Specialfall då stacken bara har ett element i sig
+			if(history.empty()) return false;
+
 			neighbours = getNeighbours(history.top());
 
 			for(size_t i = 0; i < neighbours.size(); i++)
 			{
-				//Delete unwanted
+				//Radera oönskade grannar
 				if((*this)(neighbours[i]) == char_wall || visited(neighbours[i]))
 				{
 					neighbours.erase(neighbours.begin() + i);
 					--i;
 				}
 			}
-			
-			end = history.top();
 		}
 		while(neighbours.empty() && !history.empty());
 
@@ -256,6 +256,7 @@ bool Maze::find()
 	}
 	while(!foundExit && !history.empty() || !neighbours.empty());
 
+	//Så länge stacken inte är tom, poppa den och markera vägen
 	while(!history.empty())
 	{
 		(*this)(history.top()) = char_found;
@@ -267,6 +268,7 @@ bool Maze::find()
 
 std::ostream & operator<<(std::ostream & os, Maze & maze)
 {
+	//Lägg alla tecken i utströmmen
 	for(int32_t i = 0; i < maze.m_height; i++)
 	{
 		for(int32_t j = 0; j < maze.m_width; j++)
@@ -282,6 +284,7 @@ std::vector<Vec2i> Maze::getNeighbours(Vec2i index)
 {
 	std::vector<Vec2i> list;
 	
+	//Returnera de grannar som finns inom labyrintens dimensioner
 	if(index.x > 0)			list.push_back(Vec2i(index.x - 1, index.y));
 	if(index.x < m_width - 1)	list.push_back(Vec2i(index.x + 1, index.y));
 	if(index.y > 0)			list.push_back(Vec2i(index.x, index.y - 1));
@@ -302,26 +305,17 @@ Vec2i Maze::randomBorder()
 {
 	Vec2i pos;
 
+	//Skapa en distribution för bredd höjd och true/false
 	std::uniform_int_distribution<int32_t> wDist(1, m_width  - 2),
 					hDist(1, m_height - 2),
 					boolean(0,1);
 
+	//Slumpa x och y enligt distributionen
 	pos.x = wDist(m_gen);
 	pos.y = hDist(m_gen);
 
+	//Nollställ någon utav dem
 	boolean(m_gen) == 1 ? pos.x = m_width - 1 : pos.y = m_height - 1;
-
-	return pos;
-}
-
-Vec2i Maze::randomNotBorder()
-{
-	Vec2i pos;
-
-	std::uniform_int_distribution<int32_t> wDist(1, m_width  - 2),
-					hDist(1, m_height - 2);
-	pos.x = wDist(m_gen);
-	pos.y = hDist(m_gen);
 
 	return pos;
 }

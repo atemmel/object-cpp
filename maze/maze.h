@@ -1,36 +1,41 @@
 #pragma once
 #include "table.h"
 #include <random>
-#include <cassert>
 #include <stack>
 #include <vector>
 #include <iostream>
-#include <thread>
 #include <chrono>
 #include <fstream>
 
-class Maze : public Table<char>
+class Maze : private Table<char>
 {
 public:
+
+	//Constructor
 	Maze(int32_t width, int32_t height, uint32_t seed);
 
+	//Öppna från fil
 	bool open(const std::string & file);
 	
+	//Bygg labyrint
 	void generate();
 
+	//Hitta i labyrint
 	bool find();
 
+	//För utströmmning
 	friend std::ostream & operator<<(std::ostream & os, Maze & maze);
 
 private:
 
+	//Returnerar grannar vid ett givet index
 	std::vector<Vec2i> getNeighbours(Vec2i index);
 	
+	//Kollar om ett index är en kant
 	bool isBorder(Vec2i index);
 
+	//Returnerar en slumpmässig kant
 	Vec2i randomBorder();
-
-	Vec2i randomNotBorder();
 
 	const static char char_wall = '*',
 			char_path  = ' ',
