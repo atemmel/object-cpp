@@ -80,9 +80,10 @@ void Maze::generate()
 		int32_t n_found = 0;
 		for(auto & l : close)
 		{
+			//Om den är besökt
 			if(table(l))
 			{
-				//Om antalet besökta grannar är > 0
+				//Om antalet besökta grannar är > 0 avbryt, öka annars antalet
 				if(n_found > 0) return false;
 				else ++n_found;
 			}
@@ -124,7 +125,7 @@ void Maze::generate()
 		//Om vi gått in i en återvändsgränd
 		while(neighbours.empty() && !history.empty())
 		{
-			neighbours = getNeighbours(history.top());
+			neighbours = getNeighbours(history.top()); //Hämta nya grannar
 			
 			//Ta bort oönskade grannar
 			for(size_t i = 0; i < neighbours.size(); i++)
@@ -138,7 +139,7 @@ void Maze::generate()
 					--i;
 				}
 			}
-			history.pop();
+			history.pop();	//Backa bakåt i stacken
 		}
 		
 		//Blanda grannar
@@ -150,13 +151,16 @@ void Maze::generate()
 	
 	//Skapa ett slut
 	do
-	{
+	{	
+		//Hämta en slumpmässig kant och dess grannar
 		end = randomBorder();
 		neighbours = getNeighbours(end);
 
+		//För varje granne
 		for(size_t i = 0; i < neighbours.size(); i++)
 		{
-			if((*this)(neighbours[i]) != char_path)
+			//Om den inte är en väg, ta bort den
+			if((*this)(neighbours[i]) != char_path) 
 			{
 				neighbours.erase(neighbours.begin() + i);
 				--i;
@@ -192,6 +196,7 @@ bool Maze::find()
 	//Om början inte finns så går det inte att hitta slutet
 	if(!foundStart) return false;
 
+	//Skapa en stack, grannlista och tabell för besökta celler
 	std::stack<Vec2i> history;
 	std::vector<Vec2i> neighbours;
 	Table<bool> visited(m_width, m_height, false);
@@ -223,12 +228,12 @@ bool Maze::find()
 				}
 			}
 
-			if(foundExit) break;
+			if(foundExit) break;	//Om ett slut hittats, börja bryta ut ur loopar
 
 			std::shuffle(neighbours.begin(), neighbours.end(), m_gen);
 		}
 
-		if(foundExit) break;
+		if(foundExit) break;	//Bryt ut ur sista loopen
 
 		//Om vi gått in i en återvändsgränd
 		do
@@ -238,7 +243,7 @@ bool Maze::find()
 			//Specialfall då stacken bara har ett element i sig
 			if(history.empty()) return false;
 
-			neighbours = getNeighbours(history.top());
+			neighbours = getNeighbours(history.top());	//Hämta nya grannar
 
 			for(size_t i = 0; i < neighbours.size(); i++)
 			{
@@ -295,6 +300,7 @@ std::vector<Vec2i> Maze::getNeighbours(Vec2i index)
 
 bool Maze::isBorder(Vec2i index)
 {
+	//Returnerar true om indexet är en kant
 	return index.x == 0 ||
 		index.x == m_width  - 1 ||
 		index.y == 0 ||

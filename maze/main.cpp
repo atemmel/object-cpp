@@ -1,12 +1,14 @@
 #include "maze.h"
 #include <getopt.h>
 
+//Returnerar true om strängen är ett heltal
 bool isInt(const std::string & str);
 void help();
 void version();
 
 int main(int argc, char * argv[])
 {
+
 	char        arg = 0;
 	std::string param  = "",
 		inputFile  = "",	//Infil
@@ -46,10 +48,10 @@ int main(int argc, char * argv[])
 		{
 			case 'v':	//Version
 				version();
-				return 0;
+				return EXIT_SUCCESS;
 			case 'h':	//Help
 				help();
-				return 0;
+				return EXIT_SUCCESS;
 			case 's':	//Size
 				param = optarg;
 				if(isInt(param))
@@ -111,7 +113,8 @@ int main(int argc, char * argv[])
 	if(width < 5 || height < 5)
 	{
 		error("Ogiltiga eller opsecifierade dimensioner.\nLabyrinten får ej vara "
-				"mindre än 5x5.");
+				"mindre än 5x5.\n"
+				"För hjälp skriv -h.");
 		return EXIT_FAILURE;
 	}
 	if(width % 2 == 0 || height % 2 == 0)
@@ -145,18 +148,22 @@ int main(int argc, char * argv[])
 					(found ? " " : " inte ") <<
 					"att lösa\n";
 			}
-			else
+			else if(found)
 				std::cout << maze;
 		}
 		else
 		{
-			error("Labyrinten gick ej att öppna");
+			error("Labyrinten gick ej att öppna.\n"
+					"Finns filen? "
+					"Om filen är öppen, stäng den.");
 			return EXIT_FAILURE;
 		}
 
 		return EXIT_SUCCESS;
 	}
 	
+	//Annars ska ingen fil läsas, utan någonting skall genereras
+
 	maze.generate();
 
 	std::cout << maze;

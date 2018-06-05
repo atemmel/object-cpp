@@ -1,6 +1,8 @@
 #pragma once
 
 //Template till en 2dimensionell matematisk vektor
+//Används för att indexera tabeller, navigera i 
+//labyrinten med mera
 template <class T>
 struct Vec2
 {
