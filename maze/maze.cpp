@@ -162,16 +162,26 @@ void Maze::generate()
 	while(neighbours.empty() || end == start);
 
 	(*this)(end) = char_end;
+	(*this)(1,1) = char_solve;
 }
 
 bool Maze::find()
 {
 	Vec2i start;
 
+	if(m_width < 5 || m_height < 5)
+		return false;
+
+	bool foundStart = 0;
 	for(int32_t i = 0; i < m_width; i++)
 		for(int32_t j = 0; j < m_height; j++)
-			if((*this)(i,j) == char_start)
+			if((*this)(i,j) == char_solve)
+			{
 				start = Vec2i(i,j);
+				foundStart = 1;
+			}
+
+	if(!foundStart) return false;
 
 	std::stack<Vec2i> history;
 	std::vector<Vec2i> neighbours;
@@ -248,11 +258,11 @@ bool Maze::find()
 
 	while(!history.empty())
 	{
-		(*this)(history.top()) = 'x';
+		(*this)(history.top()) = char_found;
 		history.pop();
 	}
 
-	return !history.empty();
+	return foundExit;
 }
 
 std::ostream & operator<<(std::ostream & os, Maze & maze)

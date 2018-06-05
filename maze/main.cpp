@@ -7,23 +7,13 @@ void version();
 
 int main(int argc, char * argv[])
 {
-	char        c = 0;
-	char *      cvalue = nullptr;
+	char        arg = 0;
 	std::string param  = "",
 		inputFile  = "",
 		outputFile = "";
 
-	//v : Version
-	//h : Help
-	//s : Size
-	//c : Columns
-	//r : Rows
-	//i : Input
-	//o : Output
-	//b : Check
-	//
-	//långa parametrar
-	
+	bool 	check = false;
+
 	int32_t width  = -1,
 		height = -1;
 
@@ -32,9 +22,23 @@ int main(int argc, char * argv[])
 		std::cerr << "Error: " << str << '\n';
 	};
 
-	while((c = getopt(argc, argv, "vhs:c:r:i:o:b")) != -1)
+	const char * short_opts = "vhs:c:r:i:o:b";
+
+	const struct option long_opts[] =
 	{
-		switch(c)
+		{"version", 0, NULL, 'v'},
+		{"help",    0, NULL, 'h'},
+		{"size",    1, NULL, 's'},
+		{"columns", 1, NULL, 'c'},
+		{"rows",    1, NULL, 'r'},
+		{"input",   1, NULL, 'i'},
+		{"output",  1, NULL, 'o'},
+		{"check",   0, NULL, 'b'}
+	};
+
+	while((arg = getopt_long(argc, argv, short_opts, long_opts, nullptr)) != -1)
+	{
+		switch(arg)
 		{
 			case 'v':
 				version();
@@ -86,7 +90,7 @@ int main(int argc, char * argv[])
 				outputFile = optarg;
 				break;
 			case 'b':
-				puts("Check");
+				check = true;
 				break;
 			case '?':
 			default:
@@ -94,11 +98,9 @@ int main(int argc, char * argv[])
 		}
 	}
 
-	
-
 	if(width < 5 || height < 5)
 	{
-		error("Ogiltiga dimensioner.\nLabyrinten får ej vara "
+		error("Ogiltiga eller opsecifierade dimensioner.\nLabyrinten får ej vara "
 				"mindre än 5x5.");
 		return EXIT_FAILURE;
 	}
@@ -119,13 +121,20 @@ int main(int argc, char * argv[])
 		if(!outputFile.empty())
 		{
 			error("In och utfil definierad, "
-					"otydligt vad som användarenönskas");
+					"otydligt vad användaren önskar");
 			return EXIT_FAILURE;
 		}
 		if(maze.open(inputFile))
 		{
-			bool found =maze.find();
-			std::cout << maze;
+			bool found = maze.find();
+			if(check)
+			{
+				std::cout << "Labyrinten gick" << 
+					(found ? " " : " inte ") <<
+					"att lösa\n";
+			}
+			else
+				std::cout << maze;
 		}
 		else
 		{
@@ -137,8 +146,6 @@ int main(int argc, char * argv[])
 	}
 	
 	maze.generate();
-
-	//maze.find();
 
 	std::cout << maze;
 

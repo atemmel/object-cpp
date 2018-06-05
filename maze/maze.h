@@ -35,7 +35,9 @@ private:
 	const static char char_wall = '*',
 			char_path  = ' ',
 			char_start = 'S',
-			char_end   = 'X';
+			char_solve = '+',
+			char_end   = 'X',
+			char_found = 'x';
 
 	std::mt19937 m_gen;
 
