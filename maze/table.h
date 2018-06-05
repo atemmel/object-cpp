@@ -21,6 +21,17 @@ public:
 		delete [] m_tableData;
 	}
 
+	void resize(int32_t width, int32_t height, T value)
+	{
+		m_width = width;
+		m_height = height;
+
+		delete [] m_tableData;
+		m_tableData = new T[width * height];
+
+		std::fill_n(m_tableData, m_width * m_height, value);
+	}
+
 	T & operator()(int32_t x, int32_t y)
 	{
 		return m_tableData[y * m_width + x];

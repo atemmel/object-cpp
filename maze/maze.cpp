@@ -3,7 +3,49 @@
 Maze::Maze(int32_t width, int32_t height, uint32_t seed)
 	: Table<char>(width, height, char_wall)
 {
-	m_gen.seed(m_seed);
+	m_gen.seed(seed);
+}
+
+bool Maze::open(const std::string & str)
+{
+	std::ifstream file(str);
+
+	if(!file.is_open()) return false;
+
+	std::vector<std::string> matrix;
+	std::string row = "";
+
+	int32_t prevWidth = 0;
+	std::getline(file, row);
+	prevWidth = row.size();
+	matrix.push_back(row);
+	while(std::getline(file, row))
+	{
+		matrix.push_back(row);
+		if(prevWidth != row.size())	//Kolla om alla rader har samma längd
+			return false;
+		prevWidth = row.size();
+	}
+
+	if(matrix.empty()) return false;
+
+	int32_t newWidth = matrix.front().size();
+	int32_t newHeight = matrix.size();
+
+	if(newWidth % 2 == 0 || newHeight % 2 == 0 || 
+			newWidth < 5 || newHeight < 5)
+		return false;
+
+	//Har vi nått den här punkten så har vi lyckats läsa in!
+	resize(newWidth, newHeight, char_wall);
+
+	for(int32_t i = 0; i < newHeight; i++)
+		for(int32_t j = 0; j < newWidth; j++)
+		{
+			(*this)(j,i) = matrix[i][j];
+		}
+
+	return true;
 }
 
 void Maze::generate()
@@ -220,7 +262,6 @@ std::ostream & operator<<(std::ostream & os, Maze & maze)
 		for(int32_t j = 0; j < maze.m_width; j++)
 		{
 			os << maze(j, i);
-			//os << maze(j, i) << ' ';
 		}
 		os << '\n';
 	}

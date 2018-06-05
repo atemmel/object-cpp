@@ -1,7 +1,6 @@
 #include "maze.h"
 #include <getopt.h>
 
-void error(const std::string & str);
 bool isInt(const std::string & str);
 void help();
 void version();
@@ -10,7 +9,9 @@ int main(int argc, char * argv[])
 {
 	char        c = 0;
 	char *      cvalue = nullptr;
-	std::string param;
+	std::string param  = "",
+		inputFile  = "",
+		outputFile = "";
 
 	//v : Version
 	//h : Help
@@ -20,9 +21,16 @@ int main(int argc, char * argv[])
 	//i : Input
 	//o : Output
 	//b : Check
+	//
+	//långa parametrar
 	
 	int32_t width  = -1,
 		height = -1;
+
+	auto error = [](const std::string & str)
+	{
+		std::cerr << "Error: " << str << '\n';
+	};
 
 	while((c = getopt(argc, argv, "vhs:c:r:i:o:b")) != -1)
 	{
@@ -43,6 +51,7 @@ int main(int argc, char * argv[])
 				else
 				{
 					error("Size (s) måste följas av ett heltal");
+					return EXIT_FAILURE;
 				}
 				break;
 			case 'c':
@@ -54,6 +63,7 @@ int main(int argc, char * argv[])
 				else
 				{
 					error("Columns (c) måste följas av ett heltal");
+					return EXIT_FAILURE;
 				}
 				break;
 			case 'r':
@@ -65,17 +75,15 @@ int main(int argc, char * argv[])
 				else
 				{
 					error("Rows (r) måste följas av ett heltal");
+					return EXIT_FAILURE;
 				}
 				break;
 			case 'i':
-				puts("Input");
-				cvalue = optarg;
-				puts(cvalue);
+				inputFile = optarg;
+				width = height = 5;
 				break;
 			case 'o':
-				puts("Output");
-				cvalue = optarg;
-				puts(cvalue);
+				outputFile = optarg;
 				break;
 			case 'b':
 				puts("Check");
@@ -86,74 +94,69 @@ int main(int argc, char * argv[])
 		}
 	}
 
+	
+
 	if(width < 5 || height < 5)
 	{
-		std::cerr << "Ogiltiga dimensioner. "
-			"Labyrinten får ej vara mindre än 5x5.\n"; 
-		return -1;
+		error("Ogiltiga dimensioner.\nLabyrinten får ej vara "
+				"mindre än 5x5.");
+		return EXIT_FAILURE;
 	}
 	if(width % 2 == 0 || height % 2 == 0)
 	{
-		std::cerr << "Ogiltiga dimensioner. "
-			"Labyrinten får bara ha udda dimensioner.\n";
-		return -1;
+		error("Ogilitga dimensioner.\nLabyrinten får bara ha "
+				"udda dimensioner");
+		return EXIT_FAILURE;
 	}
-			
-	auto seed = std::random_device()();
+		
+	std::random_device rng;
+	auto seed = rng();
 
 	Maze maze(width, height, seed);
 
-	auto begin = std::chrono::system_clock::now();
+	if(!inputFile.empty())
+	{
+		if(!outputFile.empty())
+		{
+			error("In och utfil definierad, "
+					"otydligt vad som användarenönskas");
+			return EXIT_FAILURE;
+		}
+		if(maze.open(inputFile))
+		{
+			bool found =maze.find();
+			std::cout << maze;
+		}
+		else
+		{
+			error("Labyrinten gick ej att öppna");
+			return EXIT_FAILURE;
+		}
 
+		return EXIT_SUCCESS;
+	}
+	
 	maze.generate();
 
-	auto end = std::chrono::system_clock::now();
-
-	maze.find();
+	//maze.find();
 
 	std::cout << maze;
 
-	auto time_build = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
-
-/*	begin = std::chrono::system_clock::now();
-
-	bool solveable = maze.find();
-
-	end = std::chrono::system_clock::now();
-
-	auto time_search = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);*/
-
-	std::cout << "Building took " << time_build.count() << "ms\n"
-//		<< "Searching took " << time_search.count() << "ms\n"
-//		<< "Solveable: " << std::boolalpha << solveable << '\n'
-	;//		<< maze;
-
-	std::ofstream file("nej");
-
-	file << maze;
-	
-/*	begin = std::chrono::system_clock::now();
-
-	for(uint64_t i = 0; i < 10000; i++)
+	if(!outputFile.empty())
 	{
-		maze.generate();
-		solveable = maze.find();
+		std::ofstream file(outputFile.c_str());
+		if(file.is_open())
+		{
+			file << maze;
+		}
+		else
+		{
+			error("Labyrinten gick ej att exportera");
+			return EXIT_FAILURE;
+		}
 	}
 
-	end = std::chrono::system_clock::now();
-
-	
-	auto time_gen = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
-
-	std::cout << "Time it took to generate and search 10000 mazes " << time_gen.count() << "ms\n";*/
-
-	return 0;
-}
-
-void error(const std::string & str)
-{
-	std::cerr << "Error: " << str << '\n';
-	exit(1);
+	return EXIT_SUCCESS;
 }
 
 bool isInt(const std::string & str)
@@ -173,14 +176,14 @@ void help()
 {
 	std::cout <<
 		"\t"
-		"--version      | -v Skriver ut versionsnummer.\n\t"
-		"--help         | -h Skriver ut tillgängliga argument.\n\t"
-		"(--size        | -s)N. Skapa en labyrint med storleken N.\n\t"
-		"(--columns     | -c)W. Skapa en labyrint med bredden W.\n\t"
-		"(--rows        | -r)H. Skapa en layrint med höjden H.\n\t"
-		"(--input       | -i)file. Använd filen file som indata.\n\t"
-		"(--output      | -o)file. Använd filen file som utdata. Annars cout.\n\t"
-		"--check        | -b. Skriver bara ut om labyrinten går att lösa.\n";
+		" --version      | -v Skriver ut versionsnummer.\n\t"
+		" --help         | -h Skriver ut tillgängliga argument.\n\t"
+		"(--size         | -s)N. Skapa en labyrint med storleken N.\n\t"
+		"(--columns      | -c)W. Skapa en labyrint med bredden W.\n\t"
+		"(--rows         | -r)H. Skapa en layrint med höjden H.\n\t"
+		"(--input        | -i)file. Använd filen file som indata.\n\t"
+		"(--output       | -o)file. Använd filen file som utdata. Annars cout.\n\t"
+		" --check        | -b. Skriver bara ut om labyrinten går att lösa.\n";
 }
 
 void version()

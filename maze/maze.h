@@ -13,6 +13,8 @@ class Maze : public Table<char>
 {
 public:
 	Maze(int32_t width, int32_t height, uint32_t seed);
+
+	bool open(const std::string & file);
 	
 	void generate();
 
@@ -36,7 +38,5 @@ private:
 			char_end   = 'X';
 
 	std::mt19937 m_gen;
-
-	uint32_t m_seed = 0;
 
 };
